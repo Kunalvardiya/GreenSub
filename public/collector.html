@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Trash Collector Dashboard — GreenSub</title>
+    <meta name="description" content="Manage pickup requests and connect with recycling companies." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+    <!-- ===== NAVBAR ===== -->
+    <nav class="navbar scrolled" id="navbar">
+        <div class="container nav-container">
+            <a href="/" class="nav-logo">🌿 Green<span>Sub</span></a>
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+                <span></span><span></span><span></span>
+            </button>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="/">Home</a></li>
+                <li><a href="/seller.html">Upload</a></li>
+                <li><a href="/marketplace.html">Marketplace</a></li>
+                <li><a href="/collector.html" class="active">Collector</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- ===== PAGE HEADER ===== -->
+    <section class="page-header">
+        <div class="container">
+            <span class="section-tag">Trash Collector</span>
+            <h1 class="page-title">Collector Dashboard</h1>
+            <p class="section-desc">View pending pickup requests and connect with recycling companies.</p>
+        </div>
+    </section>
+
+    <!-- ===== PICKUP REQUESTS ===== -->
+    <section class="section" style="padding-top:0">
+        <div class="container">
+            <div class="dashboard-grid">
+                <!-- Pickup Requests -->
+                <div class="dashboard-panel">
+                    <div class="panel-header">
+                        <h2>📋 Pickup Requests</h2>
+                        <button class="btn btn-outline btn-sm" id="btnRefreshPickups">🔄 Refresh</button>
+                    </div>
+                    <div class="pickup-list" id="pickupList">
+                        <div class="mp-loading" id="pickupLoading">
+                            <div class="spinner"></div>
+                            <p>Loading pickup requests...</p>
+                        </div>
+                    </div>
+                    <div class="mp-empty" id="pickupEmpty" style="display:none">
+                        <div class="empty-icon">📭</div>
+                        <h3>No pickup requests yet</h3>
+                        <p>Requests will appear here when users schedule waste pickups.</p>
+                    </div>
+                </div>
+
+                <!-- Recycling Partners -->
+                <div class="dashboard-panel">
+                    <div class="panel-header">
+                        <h2>♻️ Recycling Partners</h2>
+                    </div>
+                    <div class="partner-list">
+                        <div class="partner-card">
+                            <div class="partner-logo">🏭</div>
+                            <div class="partner-info">
+                                <h4>Gravita India Ltd.</h4>
+                                <p>Lead, aluminum, and plastic recycling. One of India's largest recycling companies.
+                                </p>
+                                <span class="partner-tag">Metal • Plastic • E-Waste</span>
+                            </div>
+                            <span class="partner-status connected">Connected</span>
+                        </div>
+                        <div class="partner-card">
+                            <div class="partner-logo">🏗️</div>
+                            <div class="partner-info">
+                                <h4>Attero Recycling</h4>
+                                <p>E-waste recycling and rare earth materials extraction.</p>
+                                <span class="partner-tag">Electronics • Battery</span>
+                            </div>
+                            <span class="partner-status connected">Connected</span>
+                        </div>
+                        <div class="partner-card">
+                            <div class="partner-logo">📦</div>
+                            <div class="partner-info">
+                                <h4>ITC WOW (Wellbeing Out of Waste)</h4>
+                                <p>Dry waste collection and paper/cardboard recycling program.</p>
+                                <span class="partner-tag">Paper • Cardboard</span>
+                            </div>
+                            <span class="partner-status">Available</span>
+                        </div>
+                        <div class="partner-card">
+                            <div class="partner-logo">🧪</div>
+                            <div class="partner-info">
+                                <h4>Nepra Resource Management</h4>
+                                <p>Comprehensive waste management and recycling services.</p>
+                                <span class="partner-tag">Mixed Waste • Plastic</span>
+                            </div>
+                            <span class="partner-status">Available</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2026 GreenSub. Built with 💚 for the planet.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="collector.js"></script>
+</body>
+
+</html>

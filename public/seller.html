@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Upload & Analyze — GreenSub</title>
+    <meta name="description"
+        content="Upload a waste item image. GreenSub AI analyzes it and suggests selling on the marketplace or connecting with a trash collector." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+    <!-- ===== NAVBAR ===== -->
+    <nav class="navbar scrolled" id="navbar">
+        <div class="container nav-container">
+            <a href="/" class="nav-logo">🌿 Green<span>Sub</span></a>
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+                <span></span><span></span><span></span>
+            </button>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="/">Home</a></li>
+                <li><a href="/seller.html" class="active">Upload</a></li>
+                <li><a href="/marketplace.html">Marketplace</a></li>
+                <li><a href="/collector.html">Collector</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- ===== PAGE HEADER ===== -->
+    <section class="page-header">
+        <div class="container">
+            <span class="section-tag">User 1 — Seller</span>
+            <h1 class="page-title">Upload &amp; Analyze</h1>
+            <p class="section-desc">Upload an image of a waste item. Our AI will analyze it and suggest the best course
+                of action.</p>
+        </div>
+    </section>
+
+    <!-- ===== UPLOAD & RESULT ===== -->
+    <section class="section">
+        <div class="container">
+            <div class="demo-layout">
+                <!-- Upload Area -->
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-placeholder" id="uploadPlaceholder">
+                        <div class="upload-icon">📁</div>
+                        <p>Drag &amp; drop an image here<br />or <strong>click to browse</strong></p>
+                        <span class="upload-hint">JPG, PNG, WEBP up to 10 MB</span>
+                    </div>
+                    <img id="imagePreview" class="image-preview" alt="Uploaded preview" />
+                    <input type="file" id="fileInput" accept="image/*" hidden />
+                </div>
+
+                <!-- Result Area -->
+                <div class="result-area" id="resultArea">
+                    <div class="result-placeholder" id="resultPlaceholder">
+                        <div class="result-icon">🧪</div>
+                        <p>Upload an image and click <strong>Analyze</strong> to see the result.</p>
+                    </div>
+
+                    <!-- Marketplace Result (hidden) -->
+                    <div class="result-card result-marketplace" id="resultMarketplace" style="display:none">
+                        <div class="result-badge marketplace-badge">🛒 Marketplace Listing</div>
+                        <h3 id="mpItemName">—</h3>
+                        <div class="result-details">
+                            <div class="detail"><span class="label">Category</span><span class="value"
+                                    id="mpCategory">—</span></div>
+                            <div class="detail"><span class="label">Condition</span><span class="value"
+                                    id="mpCondition">—</span></div>
+                            <div class="detail"><span class="label">Market Value</span><span class="value highlight"
+                                    id="mpValue">—</span></div>
+                            <div class="detail"><span class="label">Reuse Score</span>
+                                <span class="value">
+                                    <span class="score-bar"><span class="score-fill" id="mpScoreFill"></span></span>
+                                    <span id="mpScore">—</span>
+                                </span>
+                            </div>
+                        </div>
+                        <p class="result-tip" id="mpTip">—</p>
+
+                        <!-- Listing form -->
+                        <div class="listing-form">
+                            <h4>📝 Confirm Listing Details</h4>
+                            <div class="form-row">
+                                <input type="text" id="listName" class="input-field" placeholder="Item name" />
+                                <div class="price-field-wrapper">
+                                    <input type="number" id="listPrice" class="input-field" placeholder="Price (₹)"
+                                        min="1" />
+                                    <span class="price-hint" id="priceHint"></span>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <select id="listCategory" class="input-field">
+                                    <option value="Plastic">Plastic</option>
+                                    <option value="Glass">Glass</option>
+                                    <option value="Metal">Metal</option>
+                                    <option value="Wood">Wood</option>
+                                    <option value="Paper">Paper</option>
+                                    <option value="Textile">Textile</option>
+                                    <option value="Ceramic">Ceramic</option>
+                                    <option value="Electronics">Electronics</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                                <input type="hidden" id="listCondition" />
+                            </div>
+                            <div class="form-row">
+                                <input type="number" id="listDistance" class="input-field"
+                                    placeholder="Distance from center (km)" value="3" />
+                                <input type="text" id="listDescription" class="input-field"
+                                    placeholder="Short description (optional)" />
+                            </div>
+                            <button class="btn btn-primary btn-sm" id="btnListItem">🛒 List on Marketplace</button>
+                        </div>
+                    </div>
+
+                    <!-- Trash Collector Result (hidden) -->
+                    <div class="result-card result-trash" id="resultTrash" style="display:none">
+                        <div class="result-badge trash-badge">🗑️ Recycling Recommended</div>
+                        <h3 id="tcItemName">—</h3>
+                        <div class="result-details">
+                            <div class="detail"><span class="label">Category</span><span class="value"
+                                    id="tcCategory">—</span></div>
+                            <div class="detail"><span class="label">Material</span><span class="value"
+                                    id="tcMaterial">—</span></div>
+                            <div class="detail"><span class="label">Reuse Score</span>
+                                <span class="value">
+                                    <span class="score-bar"><span class="score-fill low" id="tcScoreFill"></span></span>
+                                    <span id="tcScore">—</span>
+                                </span>
+                            </div>
+                            <div class="detail"><span class="label">Recycling Partner</span><span class="value"
+                                    id="tcPartner">—</span></div>
+                        </div>
+                        <p class="result-tip" id="tcTip">—</p>
+                        <div class="pickup-scheduler">
+                            <h4>📅 Schedule Pickup</h4>
+                            <div class="scheduler-row">
+                                <input type="date" id="pickupDate" class="input-field" />
+                                <input type="time" id="pickupTime" class="input-field" />
+                            </div>
+                            <button class="btn btn-secondary btn-sm" id="btnSchedulePickup">📤 Notify Trash
+                                Collector</button>
+                        </div>
+                    </div>
+
+                    <!-- Confirmation (hidden) -->
+                    <div class="result-card result-confirmation" id="resultConfirmation" style="display:none">
+                        <div class="confirmation-icon">✅</div>
+                        <h3 id="confirmTitle">—</h3>
+                        <p id="confirmMsg">—</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="demo-actions">
+                <button class="btn btn-primary btn-lg" id="btnAnalyze" disabled>🔬 Analyze Waste</button>
+                <button class="btn btn-outline btn-lg" id="btnReset" style="display:none">↻ Reset</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2026 GreenSub. Built with 💚 for the planet.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="seller.js"></script>
+</body>
+
+</html>

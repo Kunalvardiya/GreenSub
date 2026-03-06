@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Green Marketplace — GreenSub</title>
+    <meta name="description"
+        content="Browse reusable items listed by nearby users. Search by name or filter by distance." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+    <!-- ===== NAVBAR ===== -->
+    <nav class="navbar scrolled" id="navbar">
+        <div class="container nav-container">
+            <a href="/" class="nav-logo">🌿 Green<span>Sub</span></a>
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+                <span></span><span></span><span></span>
+            </button>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="/">Home</a></li>
+                <li><a href="/seller.html">Upload</a></li>
+                <li><a href="/marketplace.html" class="active">Marketplace</a></li>
+                <li><a href="/collector.html">Collector</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- ===== PAGE HEADER ===== -->
+    <section class="page-header">
+        <div class="container">
+            <span class="section-tag">User 2 — Buyer</span>
+            <h1 class="page-title">Green Marketplace</h1>
+            <p class="section-desc">Browse reusable items listed by nearby users. Search by name or filter by distance.
+            </p>
+        </div>
+    </section>
+
+    <!-- ===== FILTERS ===== -->
+    <section class="section" style="padding-top:0">
+        <div class="container">
+            <div class="marketplace-filters">
+                <div class="filter-group">
+                    <label for="mpSearch">Search</label>
+                    <input type="text" id="mpSearch" class="input-field" placeholder="🔍 Search items..." />
+                </div>
+                <div class="filter-group">
+                    <label for="mpRange">Range: <span id="mpRangeLabel">50</span> km</label>
+                    <input type="range" id="mpRange" min="1" max="50" value="50" class="range-slider" />
+                </div>
+                <div class="filter-group">
+                    <button class="btn btn-outline btn-sm" id="btnRefresh">🔄 Refresh</button>
+                </div>
+            </div>
+
+            <!-- Items Grid -->
+            <div class="marketplace-grid" id="marketplaceGrid">
+                <div class="mp-loading" id="mpLoading">
+                    <div class="spinner"></div>
+                    <p>Loading marketplace items...</p>
+                </div>
+            </div>
+
+            <div class="mp-empty" id="mpEmpty" style="display:none">
+                <div class="empty-icon">📭</div>
+                <h3>No items found</h3>
+                <p>Try adjusting your search or increasing the range.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2026 GreenSub. Built with 💚 for the planet.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="marketplace.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GreenSub – AI Powered Waste Identification & Reuse Platform</title>
+    <meta name="description"
+        content="GreenSub uses AI to identify recyclable waste, connect sellers to buyers on a green marketplace, and help trash collectors partner with recycling companies." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+    <!-- ===== NAVBAR ===== -->
+    <nav class="navbar" id="navbar">
+        <div class="container nav-container">
+            <a href="/" class="nav-logo">🌿 Green<span>Sub</span></a>
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+                <span></span><span></span><span></span>
+            </button>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#about">About</a></li>
+                <li><a href="#how-it-works">How It Works</a></li>
+                <li><a href="#tech-stack">Tech</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#impact">Impact</a></li>
+                <li><a href="/seller.html" class="nav-cta">Upload Item</a></li>
+                <li><a href="/marketplace.html" class="nav-cta nav-cta-outline">Marketplace</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- ===== HERO ===== -->
+    <header class="hero" id="hero">
+        <div class="hero-bg-overlay"></div>
+        <div class="hero-particles" id="heroParticles"></div>
+        <div class="container hero-content">
+            <span class="hero-badge">♻️ Sustainability × AI</span>
+            <h1>GreenSub – AI Powered<br />Waste Identification</h1>
+            <p class="hero-subtitle">Upload waste images and discover the right way to recycle — or give items a second
+                life on our green marketplace.</p>
+            <div class="hero-buttons">
+                <a href="/seller.html" class="btn btn-primary">📷 Upload Item</a>
+                <a href="/marketplace.html" class="btn btn-outline">🛒 Browse Marketplace</a>
+            </div>
+            <div class="hero-stats">
+                <div class="stat"><span class="stat-number">95%</span><span class="stat-label">Detection Accuracy</span>
+                </div>
+                <div class="stat"><span class="stat-number">12+</span><span class="stat-label">Waste Categories</span>
+                </div>
+                <div class="stat"><span class="stat-number">♻️</span><span class="stat-label">Eco Marketplace</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== ABOUT ===== -->
+    <section class="section about" id="about">
+        <div class="container">
+            <span class="section-tag fade-in">About the Project</span>
+            <h2 class="section-title fade-in">Rethinking Waste with AI</h2>
+            <div class="about-grid">
+                <div class="about-text fade-in">
+                    <p><strong>GreenSub</strong> helps users correctly sort waste using AI-based image recognition. When
+                        a user uploads an image, our model assesses whether the item can be <em>reused or resold</em> —
+                        or should be sent for proper recycling.</p>
+                    <p>If the item has market value, it's listed on our <strong>green marketplace</strong> for nearby
+                        buyers. If not, we connect it with local <strong>trash collectors</strong> and recycling
+                        companies like <strong>Gravita India</strong>.</p>
+                    <div class="about-datasets">
+                        <div class="dataset-chip">📦 TACO TrashNet Dataset</div>
+                        <div class="dataset-chip">📊 Kaggle Waste Datasets</div>
+                    </div>
+                    <p class="about-note">The AI model will be trained on these datasets and integrated via FastAPI.</p>
+                </div>
+                <div class="about-visual fade-in">
+                    <div class="about-card">
+                        <div class="about-card-icon">🔍</div>
+                        <h4>Identify</h4>
+                        <p>AI scans the uploaded image to classify the waste item.</p>
+                    </div>
+                    <div class="about-card">
+                        <div class="about-card-icon">💰</div>
+                        <h4>Assess Value</h4>
+                        <p>Checks recent market trends to determine resale potential.</p>
+                    </div>
+                    <div class="about-card">
+                        <div class="about-card-icon">🛒</div>
+                        <h4>Reuse or Recycle</h4>
+                        <p>Lists on marketplace or connects with trash collectors.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== HOW IT WORKS ===== -->
+    <section class="section how-it-works" id="how-it-works">
+        <div class="container">
+            <span class="section-tag fade-in">Process</span>
+            <h2 class="section-title fade-in">How It Works</h2>
+            <div class="steps-grid">
+                <div class="step-card fade-in">
+                    <div class="step-number">01</div>
+                    <div class="step-icon">📷</div>
+                    <h3>Upload Image</h3>
+                    <p>Take a photo or select an image of the waste item you want to evaluate.</p>
+                </div>
+                <div class="step-card fade-in">
+                    <div class="step-number">02</div>
+                    <div class="step-icon">🤖</div>
+                    <h3>AI Analysis</h3>
+                    <p>Our model classifies the object, checks market trends, and assesses reuse potential.</p>
+                </div>
+                <div class="step-card fade-in">
+                    <div class="step-number">03</div>
+                    <div class="step-icon">📊</div>
+                    <h3>Value Assessment</h3>
+                    <p>If the item's value ≥ threshold → list on marketplace. Otherwise → route to trash collector.</p>
+                </div>
+                <div class="step-card fade-in">
+                    <div class="step-number">04</div>
+                    <div class="step-icon">♻️</div>
+                    <h3>Reuse or Recycle</h3>
+                    <p>Buyers purchase reusable items. Trash collectors partner with recycling companies.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== TECH STACK ===== -->
+    <section class="section tech-stack" id="tech-stack">
+        <div class="container">
+            <span class="section-tag fade-in">Under the Hood</span>
+            <h2 class="section-title fade-in">Technology Stack</h2>
+            <div class="tech-grid">
+                <div class="tech-card fade-in">
+                    <h3>🖥️ Frontend</h3>
+                    <ul>
+                        <li>HTML5</li>
+                        <li>CSS3</li>
+                        <li>JavaScript</li>
+                    </ul>
+                </div>
+                <div class="tech-card fade-in">
+                    <h3>⚙️ Backend</h3>
+                    <ul>
+                        <li>Python</li>
+                        <li>FastAPI</li>
+                        <li>Node.js + Express</li>
+                    </ul>
+                </div>
+                <div class="tech-card fade-in">
+                    <h3>🧠 Machine Learning</h3>
+                    <ul>
+                        <li>TensorFlow / PyTorch</li>
+                        <li>YOLOv8 / MobileNet</li>
+                    </ul>
+                </div>
+                <div class="tech-card fade-in">
+                    <h3>📦 Dataset Sources</h3>
+                    <ul>
+                        <li>TACO TrashNet</li>
+                        <li>Kaggle Waste Dataset</li>
+                    </ul>
+                </div>
+                <div class="tech-card fade-in">
+                    <h3>🖼️ Image Processing</h3>
+                    <ul>
+                        <li>OpenCV</li>
+                    </ul>
+                </div>
+                <div class="tech-card fade-in">
+                    <h3>♻️ Partners</h3>
+                    <ul>
+                        <li>Gravita India</li>
+                        <li>Local Trash Collectors</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FEATURES ===== -->
+    <section class="section features" id="features">
+        <div class="container">
+            <span class="section-tag fade-in">Why GreenSub</span>
+            <h2 class="section-title fade-in">Key Features</h2>
+            <div class="features-grid">
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">🤖</div>
+                    <h3>AI Waste Detection</h3>
+                    <p>Advanced image recognition to classify waste items instantly.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">🛒</div>
+                    <h3>Green Marketplace</h3>
+                    <p>High-value items are listed for nearby buyers, promoting reuse.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">🚛</div>
+                    <h3>Trash Collector Connect</h3>
+                    <p>Low-value items trigger pickup requests to local collectors.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">🏭</div>
+                    <h3>Recycling Partnerships</h3>
+                    <p>Collectors are connected to companies like Gravita India.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">📍</div>
+                    <h3>Nearby Item Search</h3>
+                    <p>Buyers search for reusable items within a configurable range.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">🌱</div>
+                    <h3>Eco Awareness</h3>
+                    <p>Educates users on proper waste disposal and recycling best practices.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== IMPACT ===== -->
+    <section class="section impact" id="impact">
+        <div class="container">
+            <span class="section-tag fade-in">Making a Difference</span>
+            <h2 class="section-title fade-in">Our Environmental Impact</h2>
+            <div class="impact-content fade-in">
+                <div class="impact-text">
+                    <p>Every year, <strong>millions of tonnes of recyclable material</strong> end up in landfills simply
+                        because people don't know how to sort their waste correctly.</p>
+                    <p>GreenSub bridges this gap by using AI to <strong>classify waste in real-time</strong>, route
+                        reusable items to buyers on our marketplace, and connect recyclables with certified recycling
+                        partners.</p>
+                    <p>By keeping items in circulation longer and ensuring proper recycling, <strong>GreenSub reduces
+                            landfill load, lowers carbon emissions, and promotes a circular economy</strong>.</p>
+                </div>
+                <div class="impact-stats">
+                    <div class="impact-stat">
+                        <span class="impact-number">30%</span>
+                        <span class="impact-label">Waste diverted from landfills</span>
+                    </div>
+                    <div class="impact-stat">
+                        <span class="impact-number">2×</span>
+                        <span class="impact-label">Item reuse rate increase</span>
+                    </div>
+                    <div class="impact-stat">
+                        <span class="impact-number">50+</span>
+                        <span class="impact-label">Recycling partners targeted</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <h3>🌿 Green<span>Sub</span></h3>
+                    <p>AI-Powered Waste Identification &amp; Reuse Platform</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Quick Links</h4>
+                    <a href="/seller.html">Upload Item</a>
+                    <a href="/marketplace.html">Marketplace</a>
+                    <a href="/collector.html">Trash Collector</a>
+                </div>
+                <div class="footer-links">
+                    <h4>Technology</h4>
+                    <a href="#tech-stack">Tech Stack</a>
+                    <a href="https://github.com" target="_blank" rel="noopener">GitHub ↗</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 GreenSub. Built with 💚 for the planet.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
