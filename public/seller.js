@@ -18,10 +18,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /* ---------- Initialize Flatpickr ---------- */
     if (typeof flatpickr !== 'undefined') {
-        flatpickr("#pickupDateTime", {
-            enableTime: true,
-            dateFormat: "Y-m-d H:i",
+        flatpickr("#pickupDate", {
+            dateFormat: "Y-m-d",
             minDate: "today",
+            disableMobile: "true"
+        });
+        flatpickr("#pickupTime", {
+            enableTime: true,
+            noCalendar: true,
+            dateFormat: "H:i",
             time_24hr: true,
             disableMobile: "true"
         });
@@ -149,12 +154,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const dd = String(tomorrow.getDate()).padStart(2, '0');
         const defaultDateTime = `${yyyy}-${mm}-${dd} 10:00`;
 
-        const fpInput = document.getElementById('pickupDateTime');
-        if (fpInput._flatpickr) {
-            fpInput._flatpickr.setDate(defaultDateTime);
-        } else {
-            fpInput.value = defaultDateTime;
-        }
+        const fpDate = document.getElementById('pickupDate');
+        if (fpDate._flatpickr) fpDate._flatpickr.setDate(defaultDateTime.split(' ')[0]);
+        else fpDate.value = defaultDateTime.split(' ')[0];
+
+        const fpTime = document.getElementById('pickupTime');
+        if (fpTime._flatpickr) fpTime._flatpickr.setDate(defaultDateTime.split(' ')[1]);
+        else fpTime.value = defaultDateTime.split(' ')[1];
 
         resultTrash.style.display = 'block';
     }
@@ -207,11 +213,10 @@ document.addEventListener('DOMContentLoaded', () => {
     /* ---------- Schedule Pickup (POST to API) ---------- */
     document.getElementById('btnSchedulePickup').addEventListener('click', async () => {
         const btn = document.getElementById('btnSchedulePickup');
-        const dateTimeVal = document.getElementById('pickupDateTime').value;
+        const date = document.getElementById('pickupDate').value;
+        const time = document.getElementById('pickupTime').value;
 
-        if (!dateTimeVal) { alert('Please select a date and time.'); return; }
-
-        const [date, time] = dateTimeVal.split(' ');
+        if (!date || !time) { alert('Please select a date and time.'); return; }
 
         btn.disabled = true;
         btn.textContent = '⏳ Scheduling...';
