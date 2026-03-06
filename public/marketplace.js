@@ -10,6 +10,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const mpEmpty = document.getElementById('mpEmpty');
     const btnRefresh = document.getElementById('btnRefresh');
 
+    const gsUser = JSON.parse(localStorage.getItem('gsUser') || 'null');
+
     /* ---------- Fetch items from MongoDB ---------- */
     async function fetchItems() {
         const search = mpSearch.value.trim();
@@ -43,6 +45,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     ? `<img src="${item.imageUrl}" alt="${item.name}" style="width:100%;height:160px;object-fit:cover;" />`
                     : `<div class="mp-item-img">${getCategoryIcon(item.category)}</div>`;
 
+                const isOwnItem = gsUser && item.userId === gsUser._id;
+                const buyBtn = gsUser && !isOwnItem
+                    ? `<button class="btn btn-primary btn-sm mp-buy-btn" data-id="${item._id}">🛒 Buy</button>`
+                    : isOwnItem
+                        ? `<span class="mp-own-badge">Your Item</span>`
+                        : '';
+
                 card.innerHTML = `
           ${imgContent}
           <div class="mp-item-info">
@@ -56,9 +65,40 @@ document.addEventListener('DOMContentLoaded', () => {
               <span class="mp-item-condition">${item.condition || 'Good'}</span>
             </div>
             ${item.description ? `<p class="mp-item-desc">${item.description}</p>` : ''}
+            ${buyBtn}
           </div>
         `;
                 mpGrid.appendChild(card);
+            });
+
+            // Attach buy listeners
+            document.querySelectorAll('.mp-buy-btn').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    if (!gsUser) { alert('Please login first'); return; }
+                    btn.disabled = true;
+                    btn.textContent = '⏳ Processing...';
+                    try {
+                        const res = await fetch('/api/items/' + btn.dataset.id + '/buy', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ buyerId: gsUser._id })
+                        });
+                        if (res.ok) {
+                            btn.textContent = '✅ Purchased!';
+                            btn.classList.add('btn-bought');
+                            setTimeout(fetchItems, 1200);
+                        } else {
+                            const data = await res.json();
+                            alert(data.error || 'Could not purchase');
+                            btn.disabled = false;
+                            btn.textContent = '🛒 Buy';
+                        }
+                    } catch (err) {
+                        alert('Network error');
+                        btn.disabled = false;
+                        btn.textContent = '🛒 Buy';
+                    }
+                });
             });
 
         } catch (err) {

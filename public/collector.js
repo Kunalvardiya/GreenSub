@@ -57,11 +57,12 @@ document.addEventListener('DOMContentLoaded', () => {
     /* ---------- Update pickup status ---------- */
     window.updatePickupStatus = async function (id, status, btn) {
         btn.disabled = true;
+        const gsUser = JSON.parse(localStorage.getItem('gsUser') || 'null');
         try {
             await fetch('/api/pickups/' + id, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ status })
+                body: JSON.stringify({ status, collectorId: gsUser ? gsUser._id : null })
             });
             fetchPickups();
         } catch (err) {

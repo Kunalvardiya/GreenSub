@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard — GreenSub</title>
+    <meta name="description" content="Choose your role and view your activity on GreenSub." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+    <!-- ===== NAVBAR ===== -->
+    <nav class="navbar scrolled" id="navbar">
+        <div class="container nav-container">
+            <a href="/" class="nav-logo">🌿 Green<span>Sub</span></a>
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+                <span></span><span></span><span></span>
+            </button>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="/">Home</a></li>
+                <li><a href="/dashboard.html" class="active">Dashboard</a></li>
+                <li><a href="/marketplace.html">Marketplace</a></li>
+                <li>
+                    <span class="nav-user" id="navUser"></span>
+                </li>
+                <li>
+                    <button class="btn btn-outline btn-sm nav-logout" id="btnLogout">Logout</button>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- ===== PAGE HEADER ===== -->
+    <section class="page-header">
+        <div class="container">
+            <span class="section-tag" id="dashGreeting">Welcome</span>
+            <h1 class="page-title">Your Dashboard</h1>
+            <p class="section-desc">Choose a role to get started, or view your activity below.</p>
+        </div>
+    </section>
+
+    <!-- ===== ROLE SELECTION ===== -->
+    <section class="section" style="padding-top:0">
+        <div class="container">
+            <h2 class="section-title" style="font-size:1.5rem;margin-bottom:1.5rem;">Choose Your Role</h2>
+            <div class="role-grid">
+                <!-- Buyer/Seller Card -->
+                <a href="/seller.html" class="role-card role-buyer-seller" id="roleBuyerSeller">
+                    <div class="role-icon">🛒</div>
+                    <h3>Buyer / Seller</h3>
+                    <p>Upload waste items for AI analysis, list on the marketplace, or browse and buy reusable items.
+                    </p>
+                    <span class="role-cta">Enter →</span>
+                </a>
+                <!-- Trash Collector Card -->
+                <a href="/collector.html" class="role-card role-collector" id="roleCollector">
+                    <div class="role-icon">🚛</div>
+                    <h3>Trash Collector</h3>
+                    <p>View pending pickup requests, accept jobs, and connect with recycling partner companies.</p>
+                    <span class="role-cta">Enter →</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== MY ACTIVITY ===== -->
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title" style="font-size:1.5rem;margin-bottom:1.5rem;">My Activity</h2>
+
+            <!-- Activity Tabs -->
+            <div class="activity-tabs">
+                <button class="activity-tab active" data-tab="uploaded">📦 My Uploads</button>
+                <button class="activity-tab" data-tab="purchased">🛍️ My Purchases</button>
+                <button class="activity-tab" data-tab="scheduled">📅 My Scheduled Pickups</button>
+                <button class="activity-tab" data-tab="pickups">🚛 Accepted Pickups</button>
+            </div>
+
+            <!-- Tab Panels -->
+            <div class="activity-panel" id="panelUploaded">
+                <div class="activity-grid" id="uploadedGrid"></div>
+                <div class="activity-empty" id="uploadedEmpty" style="display:none">
+                    <div class="empty-icon">📭</div>
+                    <h3>No uploaded items yet</h3>
+                    <p>Items you list on the marketplace will appear here.</p>
+                </div>
+            </div>
+
+            <div class="activity-panel" id="panelPurchased" style="display:none">
+                <div class="activity-grid" id="purchasedGrid"></div>
+                <div class="activity-empty" id="purchasedEmpty" style="display:none">
+                    <div class="empty-icon">🛒</div>
+                    <h3>No purchases yet</h3>
+                    <p>Items you buy from the marketplace will appear here.</p>
+                </div>
+            </div>
+
+            <div class="activity-panel" id="panelScheduled" style="display:none">
+                <div class="activity-grid" id="scheduledGrid"></div>
+                <div class="activity-empty" id="scheduledEmpty" style="display:none">
+                    <div class="empty-icon">📅</div>
+                    <h3>No scheduled pickups yet</h3>
+                    <p>Pickups you schedule for recycling will appear here.</p>
+                </div>
+            </div>
+
+            <div class="activity-panel" id="panelPickups" style="display:none">
+                <div class="activity-grid" id="pickupsGrid"></div>
+                <div class="activity-empty" id="pickupsEmpty" style="display:none">
+                    <div class="empty-icon">📭</div>
+                    <h3>No pickup activity yet</h3>
+                    <p>Pickups you schedule or accept will appear here.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2026 GreenSub. Built with 💚 for the planet.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="dashboard.js"></script>
+</body>
+
+</html>

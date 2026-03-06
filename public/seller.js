@@ -203,6 +203,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.textContent = '⏳ Listing...';
 
         try {
+            const gsUser = JSON.parse(localStorage.getItem('gsUser') || 'null');
             const formData = new FormData();
             formData.append('image', uploadedFile);
             formData.append('name', document.getElementById('listName').value);
@@ -212,6 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
             formData.append('distance', document.getElementById('listDistance').value || '3');
             formData.append('description', document.getElementById('listDescription').value || '');
             formData.append('reuseScore', document.getElementById('mpScore').textContent.replace('%', ''));
+            if (gsUser) formData.append('userId', gsUser._id);
 
             const res = await fetch('/api/items', { method: 'POST', body: formData });
             const data = await res.json();
@@ -246,12 +248,14 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.textContent = '⏳ Scheduling...';
 
         try {
+            const gsUser2 = JSON.parse(localStorage.getItem('gsUser') || 'null');
             const body = {
                 itemName: document.getElementById('tcItemName').textContent,
                 category: document.getElementById('tcCategory').textContent,
                 material: document.getElementById('tcMaterial').textContent,
                 partner: document.getElementById('tcPartner').textContent,
-                date, time
+                date, time,
+                userId: gsUser2 ? gsUser2._id : null
             };
 
             const res = await fetch('/api/pickups', {
