@@ -137,15 +137,19 @@ document.addEventListener('DOMContentLoaded', () => {
         resultMarketplace.style.display = 'block';
     }
 
-    function showTrashResult() {
-        const item = trashItems[Math.floor(Math.random() * trashItems.length)];
+    function showTrashResult(forcedItem = null) {
+        const item = forcedItem || trashItems[Math.floor(Math.random() * trashItems.length)];
         document.getElementById('tcItemName').textContent = item.name;
         document.getElementById('tcCategory').textContent = item.category;
-        document.getElementById('tcMaterial').textContent = item.material;
-        document.getElementById('tcScore').textContent = item.score + '%';
-        document.getElementById('tcScoreFill').style.width = item.score + '%';
-        document.getElementById('tcPartner').textContent = item.partner;
-        document.getElementById('tcTip').textContent = item.tip;
+        document.getElementById('tcMaterial').textContent = item.material || 'Mixed';
+
+        let scoreVal = item.score;
+        if (typeof scoreVal === 'string' && scoreVal.endsWith('%')) scoreVal = scoreVal.replace('%', '');
+
+        document.getElementById('tcScore').textContent = scoreVal + '%';
+        document.getElementById('tcScoreFill').style.width = scoreVal + '%';
+        document.getElementById('tcPartner').textContent = item.partner || 'General Recycling';
+        document.getElementById('tcTip').textContent = item.tip || '♻️ Opted for recycling instead of marketplace listing.';
 
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
@@ -164,6 +168,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
         resultTrash.style.display = 'block';
     }
+
+    /* ---------- Switch to Trash (From Marketplace) ---------- */
+    document.getElementById('btnSwitchToTrash').addEventListener('click', () => {
+        resultMarketplace.style.display = 'none';
+
+        const itemName = document.getElementById('listName').value || document.getElementById('mpItemName').textContent;
+        const itemCategory = document.getElementById('listCategory').value || document.getElementById('mpCategory').textContent;
+        const itemScore = document.getElementById('mpScore').textContent;
+
+        const convertedItem = {
+            name: itemName,
+            category: itemCategory,
+            material: itemCategory, // Fallback material to category
+            score: itemScore,
+            partner: 'GreenSub Partner network',
+            tip: '♻️ Scheduled for pickup. Thank you for choosing to recycle!'
+        };
+
+        showTrashResult(convertedItem);
+    });
 
     /* ---------- List on Marketplace (POST to MongoDB) ---------- */
     document.getElementById('btnListItem').addEventListener('click', async () => {
