@@ -1608,3 +1608,6 @@ select.input-field {
  } 
   
  
+
+.btn-algae { background: linear-gradient(135deg, #1b8a53, #156c41); color: #fff; box-shadow: 0 4px 24px rgba(27, 138, 83, 0.3); }
+.btn-algae:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(27, 138, 83, 0.5); color: #fff; }
