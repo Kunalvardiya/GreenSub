@@ -1593,21 +1593,58 @@ select.input-field {
         grid-template-columns: 1fr;
     }
 }
- / *   = = = = =   F L A T P I C K R   C U S T O M I Z A T I O N   = = = = =   * / 
- . f l a t p i c k r - c a l e n d a r . d a r k   { 
-     b a c k g r o u n d :   v a r ( - - b g - s e c t i o n ) ; 
-     b o r d e r :   1 p x   s o l i d   v a r ( - - g l a s s - b o r d e r ) ; 
-     b o x - s h a d o w :   0   1 6 p x   4 8 p x   v a r ( - - a c c e n t - g l o w ) ; 
- } 
- . f l a t p i c k r - d a y . s e l e c t e d   { 
-     b a c k g r o u n d :   v a r ( - - g r e e n - 5 0 0 )   ! i m p o r t a n t ; 
-     b o r d e r - c o l o r :   v a r ( - - g r e e n - 5 0 0 )   ! i m p o r t a n t ; 
- } 
- . f l a t p i c k r - t i m e   i n p u t : h o v e r ,   . f l a t p i c k r - t i m e   . f l a t p i c k r - a m - p m : h o v e r ,   . f l a t p i c k r - t i m e   i n p u t : f o c u s ,   . f l a t p i c k r - t i m e   . f l a t p i c k r - a m - p m : f o c u s   { 
-     b a c k g r o u n d :   v a r ( - - b g - c a r d - h o v e r )   ! i m p o r t a n t ; 
- } 
-  
- 
 
-.btn-algae { background: linear-gradient(135deg, #1b8a53, #156c41); color: #fff; box-shadow: 0 4px 24px rgba(27, 138, 83, 0.3); }
-.btn-algae:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(27, 138, 83, 0.5); color: #fff; }
+/* ===== FLATPICKR CUSTOMIZATION ===== */
+.flatpickr-calendar.dark {
+    background: var(--bg-section);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 16px 48px var(--accent-glow);
+}
+
+.flatpickr-day.selected {
+    background: var(--green-500) !important;
+    border-color: var(--green-500) !important;
+}
+
+.flatpickr-time input:hover,
+.flatpickr-time .flatpickr-am-pm:hover,
+.flatpickr-time input:focus,
+.flatpickr-time .flatpickr-am-pm:focus {
+    background: var(--bg-card-hover) !important;
+}
+
+.btn-eco-green {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: #fff;
+    box-shadow: 0 4px 24px rgba(34, 197, 94, 0.3);
+}
+
+.btn-eco-green:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(34, 197, 94, 0.5);
+    color: #fff;
+}
+
+.btn-ocean-blue {
+    background: linear-gradient(135deg, #0ea5e9, #0284c7);
+    color: #fff;
+    box-shadow: 0 4px 24px rgba(14, 165, 233, 0.3);
+}
+
+.btn-ocean-blue:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(14, 165, 233, 0.5);
+    color: #fff;
+}
+
+.btn-algae {
+    background: linear-gradient(135deg, #1b8a53, #156c41);
+    color: #fff;
+    box-shadow: 0 4px 24px rgba(27, 138, 83, 0.3);
+}
+
+.btn-algae:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(27, 138, 83, 0.5);
+    color: #fff;
+}
