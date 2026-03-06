@@ -16,6 +16,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let uploadedFile = null;
 
+    /* ---------- Initialize Flatpickr ---------- */
+    if (typeof flatpickr !== 'undefined') {
+        flatpickr("#pickupDateTime", {
+            enableTime: true,
+            dateFormat: "Y-m-d H:i",
+            minDate: "today",
+            time_24hr: true,
+            disableMobile: "true"
+        });
+    }
+
     /* ---------- Upload handlers ---------- */
     uploadArea.addEventListener('click', () => fileInput.click());
 
@@ -133,8 +144,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
-        document.getElementById('pickupDate').value = tomorrow.toISOString().split('T')[0];
-        document.getElementById('pickupTime').value = '10:00';
+        const yyyy = tomorrow.getFullYear();
+        const mm = String(tomorrow.getMonth() + 1).padStart(2, '0');
+        const dd = String(tomorrow.getDate()).padStart(2, '0');
+        const defaultDateTime = `${yyyy}-${mm}-${dd} 10:00`;
+
+        const fpInput = document.getElementById('pickupDateTime');
+        if (fpInput._flatpickr) {
+            fpInput._flatpickr.setDate(defaultDateTime);
+        } else {
+            fpInput.value = defaultDateTime;
+        }
 
         resultTrash.style.display = 'block';
     }
@@ -187,10 +207,11 @@ document.addEventListener('DOMContentLoaded', () => {
     /* ---------- Schedule Pickup (POST to API) ---------- */
     document.getElementById('btnSchedulePickup').addEventListener('click', async () => {
         const btn = document.getElementById('btnSchedulePickup');
-        const date = document.getElementById('pickupDate').value;
-        const time = document.getElementById('pickupTime').value;
+        const dateTimeVal = document.getElementById('pickupDateTime').value;
 
-        if (!date || !time) { alert('Please select a date and time.'); return; }
+        if (!dateTimeVal) { alert('Please select a date and time.'); return; }
+
+        const [date, time] = dateTimeVal.split(' ');
 
         btn.disabled = true;
         btn.textContent = '⏳ Scheduling...';
