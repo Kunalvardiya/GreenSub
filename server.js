@@ -5,6 +5,8 @@ const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
 const bcrypt = require('bcryptjs');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
+const fs = require('fs');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -115,6 +117,134 @@ app.post('/api/auth/login', async (req, res) => {
         res.json({ _id: user._id, name: user.name, email: user.email });
     } catch (err) {
         res.status(500).json({ error: err.message });
+    }
+});
+
+/* ========== AI ANALYZE ROUTE ========== */
+
+app.post('/api/analyze', upload.single('image'), async (req, res) => {
+    try {
+        if (!req.file) return res.status(400).json({ error: 'No image uploaded' });
+
+        const apiKey = process.env.GEMINI_API_KEY;
+        if (!apiKey) {
+            return res.status(500).json({ error: 'GEMINI_API_KEY not configured in .env' });
+        }
+
+        // Read image file as base64
+        const imagePath = req.file.path;
+        const imageData = fs.readFileSync(imagePath);
+        const base64Image = imageData.toString('base64');
+        const mimeType = req.file.mimetype;
+
+        const prompt = `You are an AI waste analysis expert for a recycling & reuse platform called GreenSub, operating in India.
+
+Analyze the uploaded image and identify the waste item. Return a JSON object with these fields:
+
+{
+  "name": "Exact item name based on what you see (e.g. 'Plastic Water Bottle', 'Glass Jar', 'Cardboard Box')",
+  "category": "One of: Plastic, Glass, Metal, Wood, Paper, Textile, Ceramic, Electronics, Rubber, Other",
+  "condition": "One of: Excellent, Good, Fair, Poor",
+  "marketValue": <realistic second-hand resale price in Indian Rupees (INR) as a number>,
+  "scrapValue": <scrap/kabadiwala price in Indian Rupees (INR) as a number>,
+  "reuseScore": <0-100 integer indicating how reusable the item is>,
+  "material": "Primary material (e.g. PET Plastic, HDPE, Aluminum, Cotton, etc.)",
+  "recyclable": true or false,
+  "partner": "Suggested recycling partner from: Gravita India (metals/plastic/e-waste), ITC WOW (paper/cardboard), Attero Recycling (electronics/batteries), Nepra Resource Management (mixed waste/plastic)",
+  "tip": "A helpful eco-friendly tip about this item",
+  "route": "marketplace if reuseScore >= 50, otherwise trash"
+}
+
+PRICING GUIDELINES (Indian second-hand resale market, NOT scrap rates):
+- Plastic bottles/containers: ₹5-20 (scrap), ₹20-80 (if reusable/decorative)
+- Glass bottles/jars: ₹10-40 (kabadiwala), ₹30-150 (if decorative/reusable)
+- Metal cans (aluminum): ₹5-15 per can
+- Metal items (steel/iron utensils): ₹50-500 depending on item
+- Copper items: ₹400-600/kg
+- Paper/cardboard (per kg): ₹10-20
+- Newspapers (per kg): ₹12-16
+- Electronics (smartphones): ₹1000-8000 depending on model/condition
+- Electronics (chargers/cables): ₹30-150
+- Laptops/tablets: ₹3000-20000 depending on working condition
+- Clothing (good condition): ₹100-1000 depending on brand/type
+- Bags/backpacks: ₹150-1500
+- Shoes (good condition): ₹100-800
+- Wooden furniture (chairs/tables): ₹500-8000 depending on size/quality
+- Vehicle tires (usable condition): ₹800-3000 per tire (retreaded/second-hand market)
+- Vehicle tires (scrap only): ₹50-200
+- Batteries: ₹10-100 each
+- Books: ₹30-200
+- Kitchen appliances: ₹200-3000
+- Fans/heaters: ₹300-1500
+
+IMPORTANT: Use RESALE value (what a buyer would pay for a used item), NOT scrap/kabadiwala rates, when condition is Good or Excellent. Only use scrap rates when condition is Poor.
+
+IMPORTANT:
+- Be accurate about what the item actually IS based on the image
+- If reuseScore >= 50, route to "marketplace" (item can be resold)
+- If reuseScore < 50, route to "trash" (item should be recycled)
+- Return ONLY valid JSON, no markdown, no extra text`;
+
+        const requestBody = {
+            contents: [{
+                parts: [
+                    { text: prompt },
+                    { inline_data: { mime_type: mimeType, data: base64Image } }
+                ]
+            }]
+        };
+
+        // Try multiple models with fallback
+        const models = ['gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-2.0-flash'];
+        let responseText = null;
+        let lastError = null;
+
+        for (const modelName of models) {
+            try {
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+                const apiRes = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestBody)
+                });
+
+                if (apiRes.ok) {
+                    const data = await apiRes.json();
+                    if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+                        responseText = data.candidates[0].content.parts[0].text;
+                        console.log(`✅ Analysis succeeded with model: ${modelName}`);
+                        break;
+                    }
+                } else {
+                    const errData = await apiRes.json().catch(() => ({}));
+                    lastError = `${modelName}: ${apiRes.status} - ${errData.error?.message || 'Unknown error'}`;
+                    console.log(`⚠️ Model ${modelName} failed: ${lastError}`);
+                }
+            } catch (fetchErr) {
+                lastError = `${modelName}: ${fetchErr.message}`;
+                console.log(`⚠️ Model ${modelName} error: ${fetchErr.message}`);
+            }
+        }
+
+        if (!responseText) {
+            return res.status(500).json({ error: 'All AI models failed. Last error: ' + lastError });
+        }
+
+        // Extract JSON from response (handle possible markdown wrapping)
+        let jsonStr = responseText;
+        const jsonMatch = responseText.match(/```(?:json)?\s*([\s\S]*?)```/);
+        if (jsonMatch) jsonStr = jsonMatch[1];
+        jsonStr = jsonStr.trim();
+
+        const analysis = JSON.parse(jsonStr);
+
+        // Keep the uploaded image path for later listing
+        analysis.imageUrl = '/uploads/' + req.file.filename;
+
+        res.json(analysis);
+    } catch (err) {
+        console.error('Analyze error:', err.message);
+        res.status(500).json({ error: 'AI analysis failed: ' + err.message });
     }
 });
 

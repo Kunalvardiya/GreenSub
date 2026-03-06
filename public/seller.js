@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const resultConfirmation = document.getElementById('resultConfirmation');
 
     let uploadedFile = null;
+    let analysisData = null; // Store the AI analysis result
 
     /* ---------- Initialize Flatpickr ---------- */
     if (typeof flatpickr !== 'undefined') {
@@ -63,39 +64,47 @@ document.addEventListener('DOMContentLoaded', () => {
         reader.readAsDataURL(file);
     }
 
-    /* ---------- Static prediction data ---------- */
-    const marketplaceItems = [
-        { name: 'Plastic Water Bottle', category: 'Plastic', condition: 'Good', value: 25, score: 72, tip: '💡 This bottle is still in good condition. Listing it allows someone to reuse it instead of buying new.' },
-        { name: 'Glass Jar', category: 'Glass', condition: 'Excellent', value: 40, score: 85, tip: '💡 Glass jars are highly reusable for storage, crafts, and décor. High demand!' },
-        { name: 'Wooden Crate', category: 'Wood', condition: 'Good', value: 60, score: 78, tip: '💡 Wooden crates are popular for DIY furniture and garden planters.' },
-        { name: 'Metal Water Bottle', category: 'Metal', condition: 'Excellent', value: 80, score: 88, tip: '💡 Metal bottles last a long time and have great resale value.' },
-        { name: 'Cotton Tote Bag', category: 'Textile', condition: 'Good', value: 35, score: 70, tip: '💡 Reusable bags are always in demand. Great for eco-conscious buyers.' }
-    ];
-
-    const trashItems = [
-        { name: 'Crushed Aluminum Can', category: 'Metal', material: 'Aluminum', score: 28, partner: 'Gravita India', tip: '♻️ Send for metal recycling. Gravita India processes aluminum scrap.' },
-        { name: 'Torn Cardboard Box', category: 'Paper', material: 'Corrugated Card', score: 35, partner: 'ITC WOW', tip: '♻️ Damaged cardboard is easily recyclable. Schedule a pickup.' },
-        { name: 'Broken Styrofoam', category: 'Plastic', material: 'Expanded Polystyrene', score: 12, partner: 'Nepra Resource Management', tip: '♻️ Styrofoam needs specialized recycling. Use a certified partner.' },
-        { name: 'Old Newspaper Stack', category: 'Paper', material: 'Newsprint', score: 22, partner: 'ITC WOW', tip: '♻️ Newspaper is great for paper recycling. Keep it dry for best quality.' }
-    ];
-
-    /* ---------- Analyze ---------- */
-    btnAnalyze.addEventListener('click', () => {
+    /* ---------- Analyze using Gemini API ---------- */
+    btnAnalyze.addEventListener('click', async () => {
         if (!uploadedFile) return;
         btnAnalyze.disabled = true;
-        btnAnalyze.textContent = '⏳ Analyzing...';
+        btnAnalyze.textContent = '⏳ Analyzing with AI...';
 
-        setTimeout(() => {
-            const isMarketplace = Math.random() > 0.4; // ~60% chance marketplace
-            hideAllResults();
-            if (isMarketplace) {
-                showMarketplaceResult();
-            } else {
-                showTrashResult();
+        try {
+            const formData = new FormData();
+            formData.append('image', uploadedFile);
+
+            const res = await fetch('/api/analyze', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                alert('Analysis error: ' + (data.error || 'Unknown error'));
+                btnAnalyze.disabled = false;
+                btnAnalyze.textContent = '🔬 Analyze Waste';
+                return;
             }
+
+            analysisData = data;
+            hideAllResults();
+
+            if (data.route === 'marketplace') {
+                showMarketplaceResult(data);
+            } else {
+                showTrashResult(data);
+            }
+
             btnAnalyze.style.display = 'none';
             btnReset.style.display = 'inline-flex';
-        }, 1800);
+
+        } catch (err) {
+            alert('Network error: ' + err.message);
+            btnAnalyze.disabled = false;
+            btnAnalyze.textContent = '🔬 Analyze Waste';
+        }
     });
 
     function hideAllResults() {
@@ -105,66 +114,72 @@ document.addEventListener('DOMContentLoaded', () => {
         resultConfirmation.style.display = 'none';
     }
 
-    function showMarketplaceResult() {
-        const item = marketplaceItems[Math.floor(Math.random() * marketplaceItems.length)];
+    function showMarketplaceResult(item) {
         document.getElementById('mpItemName').textContent = item.name;
         document.getElementById('mpCategory').textContent = item.category;
         document.getElementById('mpCondition').textContent = item.condition;
-        document.getElementById('mpValue').textContent = '₹' + item.value;
-        document.getElementById('mpScore').textContent = item.score + '%';
-        document.getElementById('mpScoreFill').style.width = item.score + '%';
+        document.getElementById('mpValue').textContent = '₹' + item.marketValue;
+        document.getElementById('mpScrapValue').textContent = '₹' + (item.scrapValue || 0);
+        document.getElementById('mpScore').textContent = item.reuseScore + '%';
+        document.getElementById('mpScoreFill').style.width = item.reuseScore + '%';
         document.getElementById('mpTip').textContent = item.tip;
 
         // Pre-fill listing form
         document.getElementById('listName').value = item.name;
 
         const priceInput = document.getElementById('listPrice');
-        priceInput.value = item.value;
-        priceInput.max = item.value; // Prevent user from increasing price above estimate
+        priceInput.value = item.marketValue;
+        priceInput.max = item.marketValue;
 
         const priceHint = document.getElementById('priceHint');
         if (priceHint) {
-            priceHint.textContent = `Max: ₹${item.value}`;
+            priceHint.textContent = `Max: ₹${item.marketValue}`;
             priceHint.style.fontSize = '0.75rem';
             priceHint.style.color = 'var(--text-muted)';
             priceHint.style.marginTop = '4px';
             priceHint.style.display = 'block';
         }
 
-        document.getElementById('listCategory').value = item.category;
+        // Set category dropdown
+        const catSelect = document.getElementById('listCategory');
+        for (let i = 0; i < catSelect.options.length; i++) {
+            if (catSelect.options[i].value === item.category) {
+                catSelect.selectedIndex = i;
+                break;
+            }
+        }
         document.getElementById('listCondition').value = item.condition;
 
         resultMarketplace.style.display = 'block';
     }
 
-    function showTrashResult(forcedItem = null) {
-        const item = forcedItem || trashItems[Math.floor(Math.random() * trashItems.length)];
+    function showTrashResult(item) {
         document.getElementById('tcItemName').textContent = item.name;
         document.getElementById('tcCategory').textContent = item.category;
         document.getElementById('tcMaterial').textContent = item.material || 'Mixed';
 
-        let scoreVal = item.score;
-        if (typeof scoreVal === 'string' && scoreVal.endsWith('%')) scoreVal = scoreVal.replace('%', '');
+        document.getElementById('tcScrapValue').textContent = '₹' + (item.scrapValue || 0);
+        document.getElementById('tcSellValue').textContent = '₹' + (item.marketValue || 0);
 
-        document.getElementById('tcScore').textContent = scoreVal + '%';
-        document.getElementById('tcScoreFill').style.width = scoreVal + '%';
+        document.getElementById('tcScore').textContent = item.reuseScore + '%';
+        document.getElementById('tcScoreFill').style.width = item.reuseScore + '%';
         document.getElementById('tcPartner').textContent = item.partner || 'General Recycling';
-        document.getElementById('tcTip').textContent = item.tip || '♻️ Opted for recycling instead of marketplace listing.';
+        document.getElementById('tcTip').textContent = item.tip || '♻️ This item should be sent for recycling.';
 
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
         const yyyy = tomorrow.getFullYear();
         const mm = String(tomorrow.getMonth() + 1).padStart(2, '0');
         const dd = String(tomorrow.getDate()).padStart(2, '0');
-        const defaultDateTime = `${yyyy}-${mm}-${dd} 10:00`;
+        const defaultDate = `${yyyy}-${mm}-${dd}`;
 
         const fpDate = document.getElementById('pickupDate');
-        if (fpDate._flatpickr) fpDate._flatpickr.setDate(defaultDateTime.split(' ')[0]);
-        else fpDate.value = defaultDateTime.split(' ')[0];
+        if (fpDate._flatpickr) fpDate._flatpickr.setDate(defaultDate);
+        else fpDate.value = defaultDate;
 
         const fpTime = document.getElementById('pickupTime');
-        if (fpTime._flatpickr) fpTime._flatpickr.setDate(defaultDateTime.split(' ')[1]);
-        else fpTime.value = defaultDateTime.split(' ')[1];
+        if (fpTime._flatpickr) fpTime._flatpickr.setDate('10:00');
+        else fpTime.value = '10:00';
 
         resultTrash.style.display = 'block';
     }
@@ -173,16 +188,12 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btnSwitchToTrash').addEventListener('click', () => {
         resultMarketplace.style.display = 'none';
 
-        const itemName = document.getElementById('listName').value || document.getElementById('mpItemName').textContent;
-        const itemCategory = document.getElementById('listCategory').value || document.getElementById('mpCategory').textContent;
-        const itemScore = document.getElementById('mpScore').textContent;
-
         const convertedItem = {
-            name: itemName,
-            category: itemCategory,
-            material: itemCategory, // Fallback material to category
-            score: itemScore,
-            partner: 'GreenSub Partner network',
+            name: analysisData.name,
+            category: analysisData.category,
+            material: analysisData.material || analysisData.category,
+            reuseScore: analysisData.reuseScore,
+            partner: analysisData.partner || 'GreenSub Partner Network',
             tip: '♻️ Scheduled for pickup. Thank you for choosing to recycle!'
         };
 
@@ -285,6 +296,7 @@ document.addEventListener('DOMContentLoaded', () => {
     /* ---------- Reset ---------- */
     btnReset.addEventListener('click', () => {
         uploadedFile = null;
+        analysisData = null;
         fileInput.value = '';
         imagePreview.src = '';
         imagePreview.classList.remove('show');
