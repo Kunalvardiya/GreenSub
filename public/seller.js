@@ -17,6 +17,48 @@ document.addEventListener('DOMContentLoaded', () => {
     let uploadedFile = null;
     let analysisData = null; // Store the AI analysis result
 
+    /* ---------- Leaflet Map Helpers ---------- */
+    const DEFAULT_CENTER = [20.5937, 78.9629]; // Center of India
+    const DEFAULT_ZOOM = 5;
+    const LOCATED_ZOOM = 15;
+    let listingMap = null, listingMarker = null;
+    let pickupMap = null, pickupMarker = null;
+    let userLatLng = null;
+
+    function initLocationMap(mapId, opts) {
+        const map = L.map(mapId).setView(DEFAULT_CENTER, DEFAULT_ZOOM);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+            maxZoom: 19
+        }).addTo(map);
+
+        let marker = null;
+        map.on('click', (e) => {
+            const { lat, lng } = e.latlng;
+            if (marker) {
+                marker.setLatLng(e.latlng);
+            } else {
+                marker = L.marker(e.latlng, { draggable: true }).addTo(map);
+                marker.on('dragend', () => {
+                    const pos = marker.getLatLng();
+                    opts.onSelect(pos.lat, pos.lng);
+                });
+            }
+            opts.onSelect(lat, lng);
+        });
+
+        // Try to use geolocation
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition((pos) => {
+                const latlng = [pos.coords.latitude, pos.coords.longitude];
+                userLatLng = latlng;
+                map.setView(latlng, LOCATED_ZOOM);
+            }, () => { /* denied — keep default */ });
+        }
+
+        return { map, getMarker: () => marker, setMarker: (m) => { marker = m; } };
+    }
+
     /* ---------- Initialize Flatpickr ---------- */
     if (typeof flatpickr !== 'undefined') {
         flatpickr("#pickupDate", {
@@ -128,8 +170,14 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('listName').value = item.name;
 
         const priceInput = document.getElementById('listPrice');
+        const priceNumberInput = document.getElementById('listPriceInput');
         priceInput.value = item.marketValue;
         priceInput.max = item.marketValue;
+
+        if (priceNumberInput) {
+            priceNumberInput.value = item.marketValue;
+            priceNumberInput.max = item.marketValue;
+        }
 
         const priceHint = document.getElementById('priceHint');
         if (priceHint) {
@@ -151,6 +199,27 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('listCondition').value = item.condition;
 
         resultMarketplace.style.display = 'block';
+
+        // Init listing map (after the container is visible)
+        setTimeout(() => {
+            if (!listingMap) {
+                const result = initLocationMap('listingMap', {
+                    onSelect: (lat, lng) => {
+                        document.getElementById('listLat').value = lat;
+                        document.getElementById('listLng').value = lng;
+                        document.getElementById('listingLatLng').textContent = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+                        document.getElementById('listingLocationBadge').style.display = 'block';
+                    }
+                });
+                listingMap = result.map;
+            } else {
+                listingMap.invalidateSize();
+            }
+            // Trigger size calculation after display block renders fully
+            setTimeout(() => {
+                if (listingMap) listingMap.invalidateSize();
+            }, 100);
+        }, 200);
     }
 
     function showTrashResult(item) {
@@ -182,6 +251,23 @@ document.addEventListener('DOMContentLoaded', () => {
         else fpTime.value = '10:00';
 
         resultTrash.style.display = 'block';
+
+        // Init pickup map (after the container is visible)
+        setTimeout(() => {
+            if (!pickupMap) {
+                const result = initLocationMap('pickupMap', {
+                    onSelect: (lat, lng) => {
+                        document.getElementById('pickupLat').value = lat;
+                        document.getElementById('pickupLng').value = lng;
+                        document.getElementById('pickupLatLng').textContent = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+                        document.getElementById('pickupLocationBadge').style.display = 'block';
+                    }
+                });
+                pickupMap = result.map;
+            } else {
+                pickupMap.invalidateSize();
+            }
+        }, 200);
     }
 
     /* ---------- Switch to Trash (From Marketplace) ---------- */
@@ -199,6 +285,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
         showTrashResult(convertedItem);
     });
+
+    /* ---------- Distance Slider Sync ---------- */
+    const listDistance = document.getElementById('listDistance');
+    const listDistanceInput = document.getElementById('listDistanceInput');
+    if (listDistance && listDistanceInput) {
+        listDistance.addEventListener('input', () => {
+            listDistanceInput.value = listDistance.value;
+        });
+        listDistanceInput.addEventListener('input', () => {
+            if (Number(listDistanceInput.value) >= Number(listDistance.min) && Number(listDistanceInput.value) <= Number(listDistance.max)) {
+                listDistance.value = listDistanceInput.value;
+            }
+        });
+    }
+
+    /* ---------- Price Slider Sync ---------- */
+    const listPrice = document.getElementById('listPrice');
+    const listPriceInput = document.getElementById('listPriceInput');
+    if (listPrice && listPriceInput) {
+        listPrice.addEventListener('input', () => {
+            listPriceInput.value = listPrice.value;
+        });
+        listPriceInput.addEventListener('input', () => {
+            if (Number(listPriceInput.value) >= Number(listPrice.min) && Number(listPriceInput.value) <= Number(listPrice.max)) {
+                listPrice.value = listPriceInput.value;
+            }
+        });
+    }
 
     /* ---------- List on Marketplace (POST to MongoDB) ---------- */
     document.getElementById('btnListItem').addEventListener('click', async () => {
@@ -218,13 +332,19 @@ document.addEventListener('DOMContentLoaded', () => {
             const formData = new FormData();
             formData.append('image', uploadedFile);
             formData.append('name', document.getElementById('listName').value);
-            formData.append('price', document.getElementById('listPrice').value);
+            formData.append('price', document.getElementById('listPriceInput').value);
             formData.append('category', document.getElementById('listCategory').value);
             formData.append('condition', document.getElementById('listCondition').value);
-            formData.append('distance', document.getElementById('listDistance').value || '3');
+            formData.append('distance', document.getElementById('listDistanceInput').value || '3');
             formData.append('description', document.getElementById('listDescription').value || '');
             formData.append('reuseScore', document.getElementById('mpScore').textContent.replace('%', ''));
             if (gsUser) formData.append('userId', gsUser._id);
+            const listLat = document.getElementById('listLat').value;
+            const listLng = document.getElementById('listLng').value;
+            if (listLat && listLng) {
+                formData.append('lat', listLat);
+                formData.append('lng', listLng);
+            }
 
             const res = await fetch('/api/items', { method: 'POST', body: formData });
             const data = await res.json();
@@ -268,6 +388,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 date, time,
                 userId: gsUser2 ? gsUser2._id : null
             };
+            const pLat = document.getElementById('pickupLat').value;
+            const pLng = document.getElementById('pickupLng').value;
+            if (pLat && pLng) {
+                body.lat = pLat;
+                body.lng = pLng;
+            }
 
             const res = await fetch('/api/pickups', {
                 method: 'POST',

@@ -8,6 +8,18 @@ const bcrypt = require('bcryptjs');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const fs = require('fs');
 
+// Haversine formula for distance (in km)
+function calculateDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371; // Earth's radius in km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return Math.round(R * c * 10) / 10; // Round to 1 decimal place
+}
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -55,6 +67,10 @@ const itemSchema = new mongoose.Schema({
     imageUrl: { type: String, default: '' },
     distance: { type: Number, default: 0 },
     description: { type: String, default: '' },
+    location: {
+        lat: { type: Number, default: null },
+        lng: { type: Number, default: null }
+    },
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
     buyerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
     sold: { type: Boolean, default: false },
@@ -70,6 +86,11 @@ const pickupSchema = new mongoose.Schema({
     partner: { type: String, default: '' },
     date: { type: String, required: true },
     time: { type: String, required: true },
+    address: { type: String, default: '' },
+    location: {
+        lat: { type: Number, default: null },
+        lng: { type: Number, default: null }
+    },
     status: { type: String, default: 'pending' },
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
     collectorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
@@ -143,10 +164,9 @@ Analyze the uploaded image and identify the waste item. Return a JSON object wit
 
 {
   "name": "Exact item name based on what you see (e.g. 'Plastic Water Bottle', 'Glass Jar', 'Cardboard Box')",
-  "category": "One of: Plastic, Glass, Metal, Wood, Paper, Textile, Ceramic, Electronics, Rubber, Other",
+  "category": "One of: Plastic, Glass, Metal, Wood, Paper, Textile, Ceramic, Electronics, Rubber, Furniture, Organic, Chemical, Other",
   "condition": "One of: Excellent, Good, Fair, Poor",
   "marketValue": <realistic second-hand resale price in Indian Rupees (INR) as a number>,
-  "scrapValue": <scrap/kabadiwala price in Indian Rupees (INR) as a number>,
   "reuseScore": <0-100 integer indicating how reusable the item is>,
   "material": "Primary material (e.g. PET Plastic, HDPE, Aluminum, Cotton, etc.)",
   "recyclable": true or false,
@@ -253,7 +273,7 @@ IMPORTANT:
 // GET /api/items — list marketplace items (with optional search & range)
 app.get('/api/items', async (req, res) => {
     try {
-        const { search, range } = req.query;
+        const { search, range, lat, lng } = req.query;
         const filter = { sold: { $ne: true } };
 
         if (search) {
@@ -261,11 +281,37 @@ app.get('/api/items', async (req, res) => {
             filter.$or = [{ name: regex }, { category: regex }];
         }
 
-        if (range) {
-            filter.distance = { $lte: Number(range) };
+        let items = await Item.find(filter).sort({ listedAt: -1 });
+
+        // Calculate dynamic distance if user location is provided
+        if (lat && lng) {
+            const userLat = parseFloat(lat);
+            const userLng = parseFloat(lng);
+
+            items = items.map(item => {
+                const itemObj = item.toObject();
+                if (item.location && item.location.lat != null && item.location.lng != null) {
+                    itemObj.distance = calculateDistance(userLat, userLng, item.location.lat, item.location.lng);
+                }
+                return itemObj;
+            });
+
+            // Filter by range
+            if (range) {
+                const maxRange = Number(range);
+                items = items.filter(item => item.distance <= maxRange);
+            }
+
+            // Sort by distance ascending
+            items.sort((a, b) => a.distance - b.distance);
+        } else if (range) {
+            // Fallback for clients not sending lat/lng
+            items = items.map(item => item.toObject());
+            items = items.filter(item => item.distance <= Number(range));
+        } else {
+            items = items.map(item => item.toObject());
         }
 
-        const items = await Item.find(filter).sort({ listedAt: -1 });
         res.json(items);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -286,7 +332,7 @@ app.get('/api/items/:id', async (req, res) => {
 // POST /api/items — add item to marketplace (with image upload)
 app.post('/api/items', upload.single('image'), async (req, res) => {
     try {
-        const { name, category, condition, price, reuseScore, distance, description, userId } = req.body;
+        const { name, category, condition, price, reuseScore, distance, description, userId, lat, lng } = req.body;
         const imageUrl = req.file ? '/uploads/' + req.file.filename : '';
 
         const item = new Item({
@@ -298,6 +344,10 @@ app.post('/api/items', upload.single('image'), async (req, res) => {
             imageUrl,
             distance: Number(distance) || 0,
             description: description || '',
+            location: {
+                lat: lat ? Number(lat) : null,
+                lng: lng ? Number(lng) : null
+            },
             userId: userId || null
         });
 
@@ -346,6 +396,11 @@ app.post('/api/pickups', async (req, res) => {
             partner: req.body.partner,
             date: req.body.date,
             time: req.body.time,
+            address: req.body.address || '',
+            location: {
+                lat: req.body.lat ? Number(req.body.lat) : null,
+                lng: req.body.lng ? Number(req.body.lng) : null
+            },
             userId: req.body.userId || null
         });
         await pickup.save();

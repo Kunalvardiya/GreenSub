@@ -11,6 +11,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap"
         rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="style.css" />
 </head>
 
@@ -44,6 +45,18 @@
     <!-- ===== PICKUP REQUESTS ===== -->
     <section class="section" style="padding-top:0">
         <div class="container">
+            <!-- Tracking Map -->
+            <div class="dashboard-panel" style="margin-bottom: 24px;">
+                <div class="panel-header">
+                    <h2>🗺️ Live Tracking Map</h2>
+                    <p class="map-help-text" style="margin: 0; padding-top: 4px;">Locations of pending pickup requests.
+                    </p>
+                </div>
+                <div id="collectorMap" class="collector-map-container"
+                    style="height: 400px; width: 100%; border-radius: 8px; border: 1px solid var(--border-light); z-index: 1;">
+                </div>
+            </div>
+
             <div class="dashboard-grid">
                 <!-- Pickup Requests -->
                 <div class="dashboard-panel">
@@ -122,6 +135,7 @@
         </div>
     </footer>
 
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="script.js"></script>
     <script src="collector.js"></script>
 </body>

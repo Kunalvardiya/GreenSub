@@ -13,6 +13,7 @@
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap"
         rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="style.css" />
 </head>
 
@@ -93,10 +94,19 @@
                             <h4>📝 Confirm Listing Details</h4>
                             <div class="form-row">
                                 <input type="text" id="listName" class="input-field" placeholder="Item name" />
-                                <div class="price-field-wrapper">
-                                    <input type="number" id="listPrice" class="input-field" placeholder="Price (₹)"
-                                        min="1" />
-                                    <span class="price-hint" id="priceHint"></span>
+                                <div class="price-field-wrapper" style="width: 100%;">
+                                    <div
+                                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                        <label for="listPrice"
+                                            style="font-weight: 500; font-size: 0.9rem; margin: 0; display: flex; align-items: center; gap: 8px;">
+                                            Price: ₹ <input type="number" id="listPriceInput" class="input-field"
+                                                style="width: 80px; padding: 4px; font-size: 0.9rem; height: auto;"
+                                                min="1" value="0" />
+                                        </label>
+                                        <span class="price-hint" id="priceHint" style="margin: 0;"></span>
+                                    </div>
+                                    <input type="range" id="listPrice" class="range-slider" min="1" max="1000"
+                                        value="0" />
                                 </div>
                             </div>
                             <div class="form-row">
@@ -109,15 +119,39 @@
                                     <option value="Textile">Textile</option>
                                     <option value="Ceramic">Ceramic</option>
                                     <option value="Electronics">Electronics</option>
+                                    <option value="Rubber">Rubber</option>
+                                    <option value="Furniture">Furniture</option>
+                                    <option value="Organic">Organic</option>
+                                    <option value="Chemical">Chemical</option>
                                     <option value="Other">Other</option>
                                 </select>
                                 <input type="hidden" id="listCondition" />
                             </div>
                             <div class="form-row">
-                                <input type="number" id="listDistance" class="input-field"
-                                    placeholder="Distance from center (km)" value="3" />
+                                <div class="filter-group" style="width: 100%;">
+                                    <label for="listDistance"
+                                        style="display: flex; align-items: center; gap: 8px; font-weight: 500;">
+                                        Distance range:
+                                        <input type="number" id="listDistanceInput" class="input-field"
+                                            style="width: 60px; padding: 4px; font-size: 0.9rem; height: auto;" min="1"
+                                            max="50" value="3" />
+                                        km
+                                    </label>
+                                    <input type="range" id="listDistance" class="range-slider" min="1" max="50"
+                                        value="3" />
+                                </div>
                                 <input type="text" id="listDescription" class="input-field"
                                     placeholder="Short description (optional)" />
+                            </div>
+                            <div class="location-picker-section">
+                                <h4>📍 Set Item Location</h4>
+                                <p class="map-help-text">Click on the map to pin your item's location</p>
+                                <div id="listingMap" class="location-map-container"></div>
+                                <div class="location-badge" id="listingLocationBadge" style="display:none">
+                                    📍 Location set: <span id="listingLatLng"></span>
+                                </div>
+                                <input type="hidden" id="listLat" />
+                                <input type="hidden" id="listLng" />
                             </div>
                             <button class="btn btn-primary btn-sm" id="btnListItem">🛒 List on Marketplace</button>
                             <button class="btn btn-outline btn-sm" id="btnSwitchToTrash"
@@ -158,6 +192,16 @@
                                     placeholder="Select Time"
                                     style="cursor: pointer; background-image: url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%2310b981\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Ccircle cx=\'12\' cy=\'12\' r=\'10\'%3E%3C/circle%3E%3Cpolyline points=\'12 6 12 12 16 14\'%3E%3C/polyline%3E%3C/svg%3E'); background-repeat: no-repeat; background-position: right 12px center; padding-right: 40px;" />
                             </div>
+                            <div class="location-picker-section">
+                                <h4>📍 Set Pickup Location</h4>
+                                <p class="map-help-text">Click on the map to pin the pickup location</p>
+                                <div id="pickupMap" class="location-map-container"></div>
+                                <div class="location-badge" id="pickupLocationBadge" style="display:none">
+                                    📍 Location set: <span id="pickupLatLng"></span>
+                                </div>
+                                <input type="hidden" id="pickupLat" />
+                                <input type="hidden" id="pickupLng" />
+                            </div>
                             <button class="btn btn-secondary btn-sm" id="btnSchedulePickup">📤 Notify Trash
                                 Collector</button>
                         </div>
@@ -189,6 +233,7 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="script.js"></script>
     <script src="seller.js"></script>
 </body>
