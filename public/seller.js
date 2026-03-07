@@ -286,16 +286,16 @@ document.addEventListener('DOMContentLoaded', () => {
         showTrashResult(convertedItem);
     });
 
-    /* ---------- Distance Slider Sync ---------- */
-    const listDistance = document.getElementById('listDistance');
-    const listDistanceInput = document.getElementById('listDistanceInput');
-    if (listDistance && listDistanceInput) {
-        listDistance.addEventListener('input', () => {
-            listDistanceInput.value = listDistance.value;
+    /* ---------- Quantity Slider Sync ---------- */
+    const listQuantity = document.getElementById('listQuantity');
+    const listQuantityInput = document.getElementById('listQuantityInput');
+    if (listQuantity && listQuantityInput) {
+        listQuantity.addEventListener('input', () => {
+            listQuantityInput.value = listQuantity.value;
         });
-        listDistanceInput.addEventListener('input', () => {
-            if (Number(listDistanceInput.value) >= Number(listDistance.min) && Number(listDistanceInput.value) <= Number(listDistance.max)) {
-                listDistance.value = listDistanceInput.value;
+        listQuantityInput.addEventListener('input', () => {
+            if (Number(listQuantityInput.value) >= Number(listQuantity.min)) {
+                listQuantity.value = listQuantityInput.value;
             }
         });
     }
@@ -333,9 +333,9 @@ document.addEventListener('DOMContentLoaded', () => {
             formData.append('image', uploadedFile);
             formData.append('name', document.getElementById('listName').value);
             formData.append('price', document.getElementById('listPriceInput').value);
+            formData.append('quantity', document.getElementById('listQuantityInput').value || '1');
             formData.append('category', document.getElementById('listCategory').value);
             formData.append('condition', document.getElementById('listCondition').value);
-            formData.append('distance', document.getElementById('listDistanceInput').value || '3');
             formData.append('description', document.getElementById('listDescription').value || '');
             formData.append('reuseScore', document.getElementById('mpScore').textContent.replace('%', ''));
             if (gsUser) formData.append('userId', gsUser._id);

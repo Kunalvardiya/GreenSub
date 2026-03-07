@@ -2022,7 +2022,40 @@ select.input-field {
 
 .activity-card-img .no-img {
     font-size: 2.5rem;
-    opacity: 0.4;
+    opacity: 0.9;
+}
+
+/* ---------- App Notification Badges ---------- */
+.nav-dot {
+    position: absolute;
+    top: 6px;
+    right: -8px;
+    width: 10px;
+    height: 10px;
+    background-color: var(--primary);
+    border-radius: 50%;
+    border: 2px solid var(--bg-body);
+}
+
+.badge-new {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.8;
+        transform: scale(1.05);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 
 .activity-card-body {

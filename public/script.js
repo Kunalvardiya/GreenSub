@@ -115,4 +115,41 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    /* ---------- Global Collector Notification Poller ---------- */
+    async function checkPendingPickups() {
+        const collectorLink = Array.from(document.querySelectorAll('.nav-links a')).find(a => a.getAttribute('href') === '/collector.html');
+        if (!collectorLink) return;
+
+        try {
+            const res = await fetch('/api/pickups');
+            if (!res.ok) return;
+            const pickups = await res.json();
+
+            // Pending and not already assigned exclusively to someone else
+            const pendingPickups = pickups.filter(p => p.status === 'pending');
+
+            let dot = collectorLink.querySelector('.nav-dot');
+
+            if (pendingPickups.length > 0) {
+                if (!dot) {
+                    // Inject dot
+                    dot = document.createElement('span');
+                    dot.className = 'nav-dot';
+                    collectorLink.style.position = 'relative'; // Ensure relative positioning for absolute dot
+                    collectorLink.appendChild(dot);
+                }
+            } else {
+                if (dot) {
+                    dot.remove();
+                }
+            }
+        } catch (err) {
+            console.error('Failed to poll pickups for notifications:', err);
+        }
+    }
+
+    // Run immediately, then every 30 seconds
+    checkPendingPickups();
+    setInterval(checkPendingPickups, 30000);
+
 });

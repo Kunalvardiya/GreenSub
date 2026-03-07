@@ -103,6 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="mp-item-meta">
               <span class="mp-item-category">${item.category}</span>
               <span class="mp-item-condition">${item.condition || 'Good'}</span>
+              <span class="mp-item-quantity" style="margin-left:auto; font-weight: 500; font-size: 0.8rem; padding: 2px 6px; background: var(--bg-card); border-radius: 4px;">Qty: ${item.quantity || 1}</span>
             </div>
             ${item.description ? `<p class="mp-item-desc">${item.description}</p>` : ''}
             <div style="display: flex; gap: 8px; margin-top: 12px; align-items: center;">

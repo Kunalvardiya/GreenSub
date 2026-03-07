@@ -71,9 +71,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
 
+                // Determine if item is "New" (less than 24h old)
+                const isNew = pickup.createdAt && (new Date() - new Date(pickup.createdAt) < 24 * 60 * 60 * 1000);
+                const newBadgeHtml = isNew ? `<span class="badge-new" style="background-color: var(--primary); color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; margin-left: 8px; display: inline-block;">NEW</span>` : '';
+
                 card.innerHTML = `
           <div class="pickup-card-header">
-            <h4>${pickup.itemName}</h4>
+            <h4>${pickup.itemName} ${newBadgeHtml}</h4>
             <span class="pickup-status status-${pickup.status}">${pickup.status}</span>
           </div>
           <div class="pickup-card-details">
